@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/raboliotlegris/Tulkas/core"
@@ -20,7 +18,7 @@ func main() {
 
 	// TCP WORKER HERE
 
-	store := sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
+	store := core.NewSessionStore("tulkas")
 
 	// Start router
 	log.Info("Creating routes")

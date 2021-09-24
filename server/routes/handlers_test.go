@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	. "github.com/franela/goblin"
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 
@@ -30,7 +28,7 @@ func Test_Routes(t *testing.T) {
 						UserName:         "root",
 						UserHashPassword: "$2y$10$h9t6WyilHqWryBvNCmsIluF4tDP8Yw3dhtSQY5ZH1b0F.e5MzUvjG", // testpassword
 					}
-					store := sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
+					store := core.NewSessionStore("tulkas")
 
 					w := httptest.NewRecorder()
 					r := routes.Create_router(&cfg, store)
@@ -47,7 +45,7 @@ func Test_Routes(t *testing.T) {
 			g.Describe("GET /api/users/check >", func() {
 				g.It("Check without login doesn't works", func() {
 					cfg := core.Config{}
-					store := sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
+					store := core.NewSessionStore("tulkas")
 
 					w := httptest.NewRecorder()
 					r := routes.Create_router(&cfg, store)
@@ -61,7 +59,7 @@ func Test_Routes(t *testing.T) {
 						UserName:         "root",
 						UserHashPassword: "$2y$10$h9t6WyilHqWryBvNCmsIluF4tDP8Yw3dhtSQY5ZH1b0F.e5MzUvjG", // testpassword
 					}
-					store := sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
+					store := core.NewSessionStore("tulkas")
 
 					w := httptest.NewRecorder()
 					r := routes.Create_router(&cfg, store)

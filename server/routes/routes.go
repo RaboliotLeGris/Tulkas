@@ -5,13 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/raboliotlegris/Tulkas/core"
 )
 
-func Create_router(cfg *core.Config, sessionStore *sessions.CookieStore) *mux.Router {
+func Create_router(cfg *core.Config, sessionStore *core.SessionStore) *mux.Router {
 	log.Info("Creating routers")
 	// Routes order creation matter.
 	r := mux.NewRouter()

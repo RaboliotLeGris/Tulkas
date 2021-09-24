@@ -4,6 +4,8 @@ clean:
 build: clean
 	go build -o build/tulkas
 
+ci: lint test
+
 run:
 	go run .
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/sessions"
 	"github.com/raboliotlegris/Tulkas/core"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -17,7 +16,7 @@ type LoginUserBody struct {
 
 type PostLoginHandler struct {
 	Cfg          *core.Config
-	SessionStore *sessions.CookieStore
+	SessionStore *core.SessionStore
 }
 
 func (h PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -36,14 +35,14 @@ func (h PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.Username == h.Cfg.UserName && bcrypt.CompareHashAndPassword([]byte(h.Cfg.UserHashPassword), []byte(body.Password)) == nil {
-		session, err := h.SessionStore.Get(r, "tulkas")
-		if err != nil {
-			log.Error("/api/login: ", err)
-			w.WriteHeader(401)
+		if err := h.SessionStore.Set(r, w, "username", body.Username); err != nil {
+			w.WriteHeader(403)
 			return
 		}
-		session.Values["username"] = body.Username
-		session.Save(r, w)
+		if err := h.SessionStore.Set(r, w, "logged", true); err != nil {
+			w.WriteHeader(403)
+			return
+		}
 		w.WriteHeader(200)
 		return
 	}
@@ -51,19 +50,12 @@ func (h PostLoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetCheckSessionHandler struct {
-	SessionStore *sessions.CookieStore
+	SessionStore *core.SessionStore
 }
 
 func (h GetCheckSessionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Request GET /api/users/check")
-	session, err := h.SessionStore.Get(r, "tulkas")
-	if err != nil {
-		log.Debug("Get Session err value: ", err)
-		w.WriteHeader(403)
-		return
-	}
-	_, ok := session.Values["username"]
-	if ok && !session.IsNew {
+	if h.SessionStore.IsAuth(r) {
 		w.WriteHeader(200)
 		return
 	}
